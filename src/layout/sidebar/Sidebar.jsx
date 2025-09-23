@@ -6,6 +6,7 @@ import { Menu, Dashboard, People, ExpandLess, ExpandMore, Person, Logout } from 
 
 import { StyledDrawer, LogoBox, MenuListItem, SubMenuListItem, LogoutListItem } from '@layout/sidebar/SidebarStyle';
 import { useSidebar } from "@layout/sidebar/SidebarProvider";
+import * as gateway from "@components/common/Gateway";
 
 const menuItems = [
     {
@@ -84,9 +85,18 @@ export default function Sidebar() {
         });
     }, [location.pathname]);
 
-    const handleLogout = () => {
-        // 로그아웃 로직 처리
-        console.log('로그아웃');
+    const handleLogout = async () => {
+        const accessToken = localStorage.getItem("accessToken");
+
+        try {
+            await gateway.post("/auth/logout", {accessToken});
+        } catch (e) {
+            console.error(e);
+        } finally {
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('refreshToken');
+            navigate("/");
+        }
     };
 
     return (

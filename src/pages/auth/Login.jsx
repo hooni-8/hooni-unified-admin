@@ -10,31 +10,30 @@ export default function Login() {
     const [password, setPassword] = useState('');
 
     const login = async () => {
-        // if (userId.trim() === '' || password.trim() === '') {
-        //     alert('아이디와 비밀번호를 입력해주세요.');
-        //     return;
-        // }
-        //
-        // const payload = {
-        //     userId, password
-        // }
-        //
-        // try {
-        //     const response = await gateway.post("/auth/login", payload);
-        //
-        //     if (response.status === 200) {
-        //         if (response.data.code === '0000') {
-        //             localStorage.setItem('accessToken', response.data.accessToken);
-        //             localStorage.setItem('refreshToken', response.data.refreshToken);
-        //             window.location.href = "/home";
-        //         } else {
-        //             alert("아이디와 비밀번호를 확인해주세요.");
-        //         }
-        //     }
-        // } catch (e) {
-        //     console.error(e);
-        // }
-        window.location.href = "/home";
+        if (userId.trim() === '' || password.trim() === '') {
+            alert('아이디와 비밀번호를 입력해주세요.');
+            return;
+        }
+
+        const payload = {
+            userId, password
+        }
+
+        try {
+            const response = await gateway.post("/auth/login", payload);
+
+            if (response.status === 200) {
+                if (response.data.code === '0000') {
+                    localStorage.setItem('accessToken', response.data.accessToken);
+                    localStorage.setItem('refreshToken', response.data.refreshToken);
+                    window.location.href = "/home";
+                } else {
+                    alert("아이디와 비밀번호를 확인해주세요.");
+                }
+            }
+        } catch (e) {
+            console.error(e);
+        }
     }
 
     const handleEnter = (e) => {
