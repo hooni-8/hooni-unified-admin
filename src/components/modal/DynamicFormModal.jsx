@@ -1,7 +1,14 @@
 import React from "react";
 import { Modal, Form, Input } from "antd";
 
-export default function DynamicFormModal({ isModalOpen, onOk, onCancel, title, fields }) {
+export default function DynamicFormModal({
+                                             isModalOpen,
+                                             onOk,
+                                             onCancel,
+                                             title,
+                                             fields,
+                                             confirmLoading // 로딩 상태 추가
+                                         }) {
     const [form] = Form.useForm();
 
     const handleOk = () => {
@@ -9,16 +16,27 @@ export default function DynamicFormModal({ isModalOpen, onOk, onCancel, title, f
             .validateFields()
             .then(values => {
                 console.log("폼 데이터:", values);
-                onOk(); // 정상 처리
+                onOk(values); // 부모로 폼 데이터 전달
             })
             .catch(info => {
                 console.log("폼 검증 실패:", info);
-                // 여기서 별도 처리 가능, 모달은 열려있음
             });
     };
 
+    // 모달이 닫힐 때 폼 초기화
+    const handleCancel = () => {
+        form.resetFields();
+        onCancel();
+    };
+
     return (
-        <Modal title={title} open={isModalOpen} onOk={handleOk} onCancel={onCancel}>
+        <Modal
+            title={title}
+            open={isModalOpen}
+            onOk={handleOk}
+            onCancel={handleCancel}
+            confirmLoading={confirmLoading} // 로딩 처리
+        >
             <Form form={form} layout="vertical">
                 {fields.map((field) => (
                     <Form.Item
@@ -33,4 +51,4 @@ export default function DynamicFormModal({ isModalOpen, onOk, onCancel, title, f
             </Form>
         </Modal>
     );
-};
+}

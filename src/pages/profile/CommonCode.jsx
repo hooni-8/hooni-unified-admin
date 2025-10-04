@@ -4,6 +4,9 @@ import { Row, Col, Card, Table, Button, Space } from "antd";
 import DynamicFormModal from "@components/modal/DynamicFormModal";
 import * as modalField from "@components/modal/ModalFields";
 
+import * as gateway from "@components/common/Gateway";
+
+
 const groupData = Array.from({ length: 23 }).map((_, idx) => ({
     key: String(idx + 1),
     groupCode: `GROUP_${idx + 1}`,
@@ -24,6 +27,8 @@ export default function CommonCode() {
 
     const [title, setTitle] = useState("");
     const [modalFields, setModalFields] = useState([]);
+
+    const [modalType, setModalType] = useState("");
 
     const groupColumns = [
         { title: "그룹코드", dataIndex: "groupCode", key: "groupCode" },
@@ -57,16 +62,38 @@ export default function CommonCode() {
     ];
 
     const openUserModal = () => {
-        setTitle("공통코드 그룹 추가");
+        setTitle("코드 그룹 추가");
         setModalFields(modalField.COMMON_CODE_GROUP);
+        setModalType("GROUP")
         setIsModalOpen(true);
     };
 
     const openOrderModal = () => {
         setTitle("코드 상세 추가");
         setModalFields(modalField.COMMON_CODE);
+        setModalType("CODE")
         setIsModalOpen(true);
     };
+
+    const handleModalCancel = () => {
+        setIsModalOpen(false);
+    }
+
+    const handleModalOk = async (formData) => {
+        try {
+            if (modalType === "GROUP") {
+                const response = await gateway.post("/admin-profile/common/insert");
+                console.log(response);
+            } else if (modalType === "CODE") {
+                const response = await gateway.post("/admin-profile/group/insert");
+                console.log(response);
+            }
+
+            setIsModalOpen(false);
+        } catch (e) {
+            console.log(e);
+        }
+    }
 
     return (
         <Row gutter={16} style={{ padding: 24 }}>
@@ -116,8 +143,8 @@ export default function CommonCode() {
 
             <DynamicFormModal
                 isModalOpen={isModalOpen}
-                onOk={() => setIsModalOpen(false)}
-                onCancel={() => setIsModalOpen(false)}
+                onOk={handleModalOk}
+                onCancel={handleModalCancel}
                 title={title}
                 fields={modalFields}
             />
