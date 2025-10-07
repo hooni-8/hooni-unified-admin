@@ -82,10 +82,10 @@ export default function CommonCode() {
     const handleModalOk = async (formData) => {
         try {
             if (modalType === "GROUP") {
-                const response = await gateway.post("/admin-profile/common/insert");
+                const response = await gateway.post("/admin-profile/api/v1/common/insert");
                 console.log(response);
             } else if (modalType === "CODE") {
-                const response = await gateway.post("/admin-profile/group/insert");
+                const response = await gateway.post("/admin-profile/api/v1/group/insert");
                 console.log(response);
             }
 
