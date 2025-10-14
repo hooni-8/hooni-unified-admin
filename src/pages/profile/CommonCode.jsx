@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, {useEffect, useState} from "react";
 import { Row, Col, Card, Table, Button, Space } from "antd";
 
 import DynamicFormModal from "@components/modal/DynamicFormModal";
@@ -6,29 +6,18 @@ import * as modalField from "@components/modal/ModalFields";
 
 import * as gateway from "@components/common/Gateway";
 
-
-const groupData = Array.from({ length: 23 }).map((_, idx) => ({
-    key: String(idx + 1),
-    groupCode: `GROUP_${idx + 1}`,
-    groupName: `그룹명 ${idx + 1}`,
-}));
-
-const codeData = {
-    GROUP_1: Array.from({ length: 35 }).map((_, idx) => ({
-        key: String(idx + 1),
-        code: `CODE_${idx + 1}`,
-        name: `코드명 ${idx + 1}`,
-    })),
-};
-
 export default function CommonCode() {
     const [selectedGroup, setSelectedGroup] = useState(null);
+    const [selectedGroupId, setSelectedGroupId] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const [title, setTitle] = useState("");
     const [modalFields, setModalFields] = useState([]);
 
     const [modalType, setModalType] = useState("");
+
+    const [groupData, setGroupData] = useState([]);
+    const [codeData, setCodeData] = useState([]);
 
     const groupColumns = [
         { title: "그룹코드", dataIndex: "groupCode", key: "groupCode" },
@@ -37,16 +26,21 @@ export default function CommonCode() {
             title: "액션",
             key: "action",
             render: (_, record) => (
-                <Button type="link" onClick={() => setSelectedGroup(record.groupCode)}>
+                <Button type="link" onClick={() => groupSelect(record)}>
                     상세보기
                 </Button>
             ),
         },
     ];
 
+    const groupSelect = (record) => {
+        setSelectedGroup(record.groupName);
+        setSelectedGroupId(record.groupId);
+    }
+
     const codeColumns = [
-        { title: "코드", dataIndex: "code", key: "code" },
-        { title: "코드명", dataIndex: "name", key: "name" },
+        { title: "코드", dataIndex: "commonCode", key: "commonCode" },
+        { title: "코드명", dataIndex: "commonCodeName", key: "commonCodeName" },
         {
             title: "액션",
             key: "action",
@@ -82,16 +76,50 @@ export default function CommonCode() {
     const handleModalOk = async (formData) => {
         try {
             if (modalType === "GROUP") {
-                const response = await gateway.post("/admin-profile/api/v1/common/insert");
-                console.log(response);
+                await gateway.post("/admin-profile/api/v1/group/insert", formData);
+                fetchGroupData();
             } else if (modalType === "CODE") {
-                const response = await gateway.post("/admin-profile/api/v1/group/insert");
-                console.log(response);
+                const payload = {
+                    ...formData,
+                    groupId: selectedGroupId
+                };
+                await gateway.post("/admin-profile/api/v1/common/insert", payload);
+                fetchCodeData();
             }
 
             setIsModalOpen(false);
         } catch (e) {
-            console.log(e);
+            console.error(e);
+        }
+    }
+
+    useEffect(() => {
+        fetchGroupData();
+    }, []);
+
+    const fetchGroupData = async () => {
+        try {
+            const response = await gateway.post("/admin-profile/api/v1/group/select");
+            setGroupData(response.data);
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    useEffect(() => {
+        fetchCodeData();
+    }, [selectedGroupId]);
+
+    const fetchCodeData = async () => {
+        try {
+            const payload = {
+                groupId: selectedGroupId,
+            }
+
+            const response = await gateway.post("/admin-profile/api/v1/common/select", payload);
+            setCodeData(response.data);
+        } catch (e) {
+            console.error(e);
         }
     }
 
@@ -117,9 +145,7 @@ export default function CommonCode() {
             <Col span={16}>
                 <Card
                     title={
-                        selectedGroup
-                            ? `코드 상세 (${selectedGroup})`
-                            : "코드 상세 (그룹 선택 필요)"
+                        selectedGroup ? `코드 상세 (${selectedGroup})` : "코드 상세 (그룹 선택 필요)"
                     }
                     extra={
                         selectedGroup && (
@@ -131,7 +157,7 @@ export default function CommonCode() {
                 >
                     {selectedGroup ? (
                         <Table
-                            dataSource={codeData[selectedGroup] || []}
+                            dataSource={codeData}
                             columns={codeColumns}
                             pagination={{ pageSize: 9 }}
                         />

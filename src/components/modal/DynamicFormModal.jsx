@@ -15,7 +15,6 @@ export default function DynamicFormModal({
         form
             .validateFields()
             .then(values => {
-                console.log("폼 데이터:", values);
                 onOk(values); // 부모로 폼 데이터 전달
             })
             .catch(info => {
