@@ -1,4 +1,7 @@
+import * as gateway from "@components/common/Gateway";
+
 import { Row, Col, Card, Button, List, Tag, Table, Timeline, Badge } from "antd";
+import {useEffect} from "react";
 
 const data = [
     { id: 1, name: "홍길동", email: "hong@example.com" },
@@ -17,6 +20,16 @@ const columns = [
 
 
 export default function Home() {
+
+    useEffect(() => {
+        const test = async () => {
+            await gateway.post("/test/disk/usage");
+            console.log("test!");
+        }
+
+        test();
+    }, []);
+
 
     return (
         <>
