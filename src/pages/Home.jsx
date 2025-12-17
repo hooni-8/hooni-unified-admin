@@ -21,16 +21,6 @@ const columns = [
 
 export default function Home() {
 
-    useEffect(() => {
-        const test = async () => {
-            await gateway.post("/admin-profile/test/disk/usage");
-            console.log("test!");
-        }
-
-        test();
-    }, []);
-
-
     return (
         <>
             <Row gutter={[16, 16]}>
